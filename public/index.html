@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            console.log("Domloaded");
+
+            let ws = new WebSocket("/events");
+            let pressure = document.getElementById("pressure");
+
+            ws.onopen = () => {
+                console.log("WebSocket connection open");
+            };
+
+            ws.onmessage = ({ data }) => {
+
+                console.log("data", data);
+
+                data = JSON.parse(data);
+                pressure.innerText = data.value;
+
+            }
+
+            document.querySelectorAll(".btn").forEach((elem) => {
+                elem.addEventListener("click", () => {
+
+                    console.log("Btn clicked", elem.dataset);
+
+                    let data = JSON.stringify({
+                        action: elem.dataset.action,
+                        value: elem.dataset.value
+                    });
+
+                    ws.send(data)
+
+                });
+            })
+
+        });
+
+    </script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background-color: #101418;
+            background-image: radial-gradient(circle, #23282e 0%, rgba(35, 40, 46, .5) 15%, #101418 95%), url("image.png");
+            color: #efefef;
+            font-size: 3vh;
+            text-transform: uppercase;
+        }
+
+        .full-height {
+            height: 100vh;
+        }
+
+        #pressure {
+            font-size: 5vh;
+        }
+
+        .btn{
+            min-width: 2vw !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="d-flex justify-content-center align-items-center full-height">
+        <div class="container text-center">
+
+            <!-- PRESAURE-->
+            <div class="row">
+                <div class="col text-center">
+                    <h1>Druck</h1>
+                    <div id="pressure">
+                        0
+                    </div>
+                    Bar
+                </div>
+            </div>
+            <!-- PRESAURE-->
+
+
+            <!-- SPACER -->
+            <div style="height: 10vh"></div>
+            <!-- SPACER -->
+
+
+            <!-- SIMLUATE -->
+            <div class="row">
+                <div class="col text-center">
+                    <h5>Simulation</h5>
+
+                        <button type="button" class="btn btn-outline-primary" data-value="8" data-action="-">- 8</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="5" data-action="-">- 5</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="3" data-action="-">- 3</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="1" data-action="-">- 1</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="0" data-action="set">0</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="1" data-action="+">+ 1</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="3" data-action="+">+ 3</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="5" data-action="+">+ 5</button>
+                        <button type="button" class="btn btn-outline-primary" data-value="8" data-action="+">+ 8</button>
+  
+                </div>
+            </div>
+            <!-- SIMLUATE -->
+
+        </div>
+    </div>
+
+</body>
+
+</html>
