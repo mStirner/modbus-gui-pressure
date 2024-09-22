@@ -1,4 +1,5 @@
 ![Bild](./docs/web-ui.gif)
+![Bild](./docs/frontend.png)
 
 ## Prerequisites
 - [node.js](https://nodejs.org/en)

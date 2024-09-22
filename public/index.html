@@ -54,10 +54,11 @@
             background-color: #101418;
             background-image: radial-gradient(circle, #23282e 0%, rgba(35, 40, 46, .5) 15%, #101418 95%), url("image.png");
             color: #efefef;
-            font-size: 3vh;
+            font-size: 2.5vh;
             text-transform: uppercase;
         }
 
+        /*
         .full-height {
             height: 100vh;
         }
@@ -66,16 +67,42 @@
             font-size: 5vh;
         }
 
-        .btn{
+        .btn {
             min-width: 2vw !important;
         }
+            */
     </style>
 </head>
 
 <body>
 
-    <div class="d-flex justify-content-center align-items-center full-height">
-        <div class="container text-center">
+    
+
+    <!-- NAVIGATION-->
+    <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#messure-tab" type="button" role="tab">
+                MESSURE
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#simulate-tab" type="button" role="tab">
+                SIMULATE
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#settings-tab" type="button" role="tab">
+                SETTINGS
+            </button>
+        </li>
+    </ul>
+    <!-- NAVIGATION-->
+    <!-- CONTENT -->
+    <div class="container-fluid">
+    <div class="tab-content" id="myTabContent">
+
+        <!-- CONTENT: MESSURE -->
+        <div class="tab-pane fade show active" id="messure-tab" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
 
             <!-- PRESAURE-->
             <div class="row">
@@ -89,33 +116,53 @@
             </div>
             <!-- PRESAURE-->
 
-
-            <!-- SPACER -->
-            <div style="height: 10vh"></div>
-            <!-- SPACER -->
-
+        </div>
+        <!-- CONTENT: MESSURE -->
+        <!-- CONTENT: SIMULATE-->
+        <div class="tab-pane fade" id="simulate-tab" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
 
             <!-- SIMLUATE -->
             <div class="row">
                 <div class="col text-center">
                     <h5>Simulation</h5>
 
-                        <button type="button" class="btn btn-outline-primary" data-value="8" data-action="-">- 8</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="5" data-action="-">- 5</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="3" data-action="-">- 3</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="1" data-action="-">- 1</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="0" data-action="set">0</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="1" data-action="+">+ 1</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="3" data-action="+">+ 3</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="5" data-action="+">+ 5</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="8" data-action="+">+ 8</button>
-  
+                    <button type="button" class="btn btn-outline-primary" data-value="8" data-action="-">-
+                        8</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="5" data-action="-">-
+                        5</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="3" data-action="-">-
+                        3</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="1" data-action="-">-
+                        1</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="0" data-action="set">0</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="1" data-action="+">+
+                        1</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="3" data-action="+">+
+                        3</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="5" data-action="+">+
+                        5</button>
+                    <button type="button" class="btn btn-outline-primary" data-value="8" data-action="+">+
+                        8</button>
+
                 </div>
             </div>
             <!-- SIMLUATE -->
 
         </div>
+        <!-- CONTENT: SIMULATE-->
+        <!-- CONTENT: SETTINGS-->
+        <div class="tab-pane fade" id="settings-tab" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+            C
+        </div>
+        <!-- CONTENT: SETTINGS-->
+
     </div>
+    </div>
+    <!-- CONTENT -->
+
+
+
+    <script src="bootstrap.min.js"></script>
 
 </body>
 
