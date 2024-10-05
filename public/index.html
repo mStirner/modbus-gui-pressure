@@ -36,7 +36,7 @@
 
 
         // Baudrate Options
-        const baudRates = [9600, 19200, 38400, 57600, 115200];
+        const baudRates = [9600, 19200];
         let currentBaudIndex = 0;
 
         // Address Options (1-10)
@@ -112,7 +112,7 @@
         }
 
         handleEntrySelection({
-            items: [9600, 19200, 38400, 57600, 115200],
+            items: [9600, 19200],
             index: 0,
             prevButton: prevBaud,
             nextButton: nextBaud
@@ -363,7 +363,7 @@
             <div class="col text-center">
                 <h3>P<small>ist 20°C</small></h3>
                 <span id="pressure1" class="value">0</span>
-                <h5>MPa</h5>
+                <h5>bar</h5>
             </div>
             <!-- Pressure 1 -->
 
