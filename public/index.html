@@ -36,11 +36,11 @@
 
 
         // Baudrate Options
-        const baudRates = [9600, 19200];
+        const baudRates = ["---", 9600, 19200];
         let currentBaudIndex = 0;
 
         // Address Options (1-10)
-        const addresses = Array.from({ length: 10 }, (_, i) => i + 1);
+        const addresses =Array.from({ length: 10 }, (_, i) => i + 1);
         let currentAddressIndex = 0;
 
         // Stop Bit Options (1, 1.5, 2)
