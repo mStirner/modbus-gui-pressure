@@ -17,10 +17,17 @@
             let pressure2 = document.getElementById("pressure2");
             let temperature = document.getElementById("temperature");
 
-            window.ws = ws;
-
             ws.onopen = () => {
                 console.log("WebSocket connection open");
+            };
+
+            ws.onclose = () => {
+                alert("WebSocket verbindung verloren!");
+            };
+
+            ws.onerror = (err) => {
+                console.error(err);
+                alert(`WebSocket error: ${err.message}`);
             };
 
             ws.onmessage = ({ data }) => {
@@ -66,8 +73,6 @@
         const nextParity = document.getElementById('nextParity');
 
 
-
-
         function sendSettings() {
 
             // reset display values
@@ -84,7 +89,9 @@
                 parity: parity[currentParityIndex]
             });
 
-            ws.send(json);
+            if(ws.readyState === WebSocket.OPEN){
+                ws.send(json);
+            }
 
         }
 
@@ -379,7 +386,8 @@
 
             <div class="col-12 text-center">
                 <h3>Temperatur</h3>
-                <span id="temperature" class="value orange">0</span>°C
+                <span id="temperature" class="value orange">0</span>
+                <h5>°C</h5>
             </div>
 
         </div>
