@@ -13,7 +13,11 @@
             console.log("Domloaded");
 
             let ws = new WebSocket("/events");
-            let pressure = document.getElementById("pressure");
+            let pressure1 = document.getElementById("pressure1");
+            let pressure2 = document.getElementById("pressure2");
+            let temperature = document.getElementById("temperature");
+
+            window.ws = ws;
 
             ws.onopen = () => {
                 console.log("WebSocket connection open");
@@ -24,40 +28,258 @@
                 console.log("data", data);
 
                 data = JSON.parse(data);
-                pressure.innerText = data.value;
+                pressure1.innerText = data.pressure1;
+                pressure2.innerText = data.pressure2;
+                temperature.innerText = data.temperature;
 
             }
 
-            document.querySelectorAll(".btn").forEach((elem) => {
-                elem.addEventListener("click", () => {
 
-                    console.log("Btn clicked", elem.dataset);
+        // Baudrate Options
+        const baudRates = [9600, 19200, 38400, 57600, 115200];
+        let currentBaudIndex = 0;
 
-                    let data = JSON.stringify({
-                        action: elem.dataset.action,
-                        value: elem.dataset.value
-                    });
+        // Address Options (1-10)
+        const addresses = Array.from({ length: 10 }, (_, i) => i + 1);
+        let currentAddressIndex = 0;
 
-                    ws.send(data)
+        // Stop Bit Options (1, 1.5, 2)
+        const stopBits = [1, 1.5, 2];
+        let currentStopBitIndex = 0;
 
-                });
-            })
+        // Parity Options (none, even, odd)
+        const parity = ["none", "even", "odd"];
+        let currentParityIndex = 0;
+
+        // DOM Elements
+        const baudRateDisplay = document.getElementById('baudRateDisplay');
+        const addressDisplay = document.getElementById('addressDisplay');
+        const stopBitDisplay = document.getElementById('stopBitDisplay');
+        const parityDisplay = document.getElementById('parityDisplay');
+        const prevBaud = document.getElementById('prevBaud');
+        const nextBaud = document.getElementById('nextBaud');
+        const prevAddress = document.getElementById('prevAddress');
+        const nextAddress = document.getElementById('nextAddress');
+        const prevStopBit = document.getElementById('prevStopBit');
+        const nextStopBit = document.getElementById('nextStopBit');
+        const prevParity = document.getElementById('prevParity');
+        const nextParity = document.getElementById('nextParity');
+
+
+
+
+        function sendSettings() {
+
+            // reset display values
+            // this could indicate a settings problem
+            // if no new values are set/received
+            pressure1.innerText = "0";
+            pressure2.innerText = "0";
+            temperature.innerText = "0";            
+
+            let json = JSON.stringify({
+                baudRate: baudRates[currentBaudIndex],
+                stopBits: stopBits[currentStopBitIndex],
+                address: addresses[currentAddressIndex],
+                parity: parity[currentParityIndex]
+            });
+
+            ws.send(json);
+
+        }
+
+        /*
+        function handleEntrySelection(obj, cb) {
+
+            obj.prevButton.addEventListener('click', () => {
+                if (obj.index > 0) {
+                    obj.index--;
+                } else {
+                    obj.index = obj.items.length - 1;
+                }
+                cb(obj);
+            });
+
+            obj.nextButton.addEventListener('click', () => {
+                if (obj.index < obj.items.length - 1) {
+                    obj.index++;
+                } else {
+                    obj.index = 0;
+                }
+                cb(obj);
+            });
+
+        }
+
+        handleEntrySelection({
+            items: [9600, 19200, 38400, 57600, 115200],
+            index: 0,
+            prevButton: prevBaud,
+            nextButton: nextBaud
+        }, ({ items, index }) => {
+            baudRateDisplay.textContent = items[index];
+        });
+        */
+
+        // Function to update the baud rate display
+        function updateBaudRate() {
+            baudRateDisplay.textContent = baudRates[currentBaudIndex];
+            sendSettings();
+        }
+
+        // Function to update the address display
+        function updateAddress() {
+            addressDisplay.textContent = addresses[currentAddressIndex];
+            sendSettings();
+        }
+
+        // Function to update the stop bit display
+        function updateStopBit() {
+            stopBitDisplay.textContent = stopBits[currentStopBitIndex];
+            sendSettings();
+        }
+
+        function updateParity() {
+            parityDisplay.textContent = parity[currentParityIndex];
+            sendSettings();
+        }
+
+        // Prevent dropdown from closing when clicking on the buttons
+        document.querySelectorAll('.dropdown-menu button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevents the dropdown from closing
+            });
+        });
+
+        // Event Listeners for baud rate buttons
+        prevBaud.addEventListener('click', () => {
+            if (currentBaudIndex > 0) {
+                currentBaudIndex--;
+            } else {
+                currentBaudIndex = baudRates.length - 1; // Wrap around to the last option
+            }
+            updateBaudRate();
+        });
+
+        nextBaud.addEventListener('click', () => {
+            if (currentBaudIndex < baudRates.length - 1) {
+                currentBaudIndex++;
+            } else {
+                currentBaudIndex = 0; // Wrap around to the first option
+            }
+            updateBaudRate();
+        });
+
+        // Event Listeners for address buttons
+        prevAddress.addEventListener('click', () => {
+            if (currentAddressIndex > 0) {
+                currentAddressIndex--;
+            } else {
+                currentAddressIndex = addresses.length - 1; // Wrap around to the last option
+            }
+            updateAddress();
+        });
+
+        nextAddress.addEventListener('click', () => {
+            if (currentAddressIndex < addresses.length - 1) {
+                currentAddressIndex++;
+            } else {
+                currentAddressIndex = 0; // Wrap around to the first option
+            }
+            updateAddress();
+        });
+
+        // Event Listeners for stop bit buttons
+        prevStopBit.addEventListener('click', () => {
+            if (currentStopBitIndex > 0) {
+                currentStopBitIndex--;
+            } else {
+                currentStopBitIndex = stopBits.length - 1; // Wrap around to the last option
+            }
+            updateStopBit();
+        });
+
+        nextStopBit.addEventListener('click', () => {
+            if (currentStopBitIndex < stopBits.length - 1) {
+                currentStopBitIndex++;
+            } else {
+                currentStopBitIndex = 0; // Wrap around to the first option
+            }
+            updateStopBit();
+        });
+
+        // Event Listeners for parity buttons
+        prevParity.addEventListener('click', () => {
+            if (currentParityIndex > 0) {
+                currentParityIndex--;
+            } else {
+                currentParityIndex = parity.length - 1; // Wrap around to the last option
+            }
+            updateParity();
+        });
+
+        nextParity.addEventListener('click', () => {
+            if (currentParityIndex < parity.length - 1) {
+                currentParityIndex++;
+            } else {
+                currentParityIndex = 0; // Wrap around to the first option
+            }
+            updateParity();
+        });
+
+        // Initialize display
+        updateBaudRate();
+        updateAddress();
+        updateStopBit();
+        updateParity();
+
+
 
         });
 
     </script>
     <style>
+        @font-face {
+            font-family: sevenSegment;
+            src: url("Seven Segment.ttf");
+        }
+
         html,
         body {
             height: 100%;
             margin: 0;
-            background-color: #101418;
+            /*background-color: #101418;
             background-image: radial-gradient(circle, #23282e 0%, rgba(35, 40, 46, .5) 15%, #101418 95%), url("image.png");
+            */
+            background-color: #252e36;
             color: #efefef;
-            font-size: 3vh;
-            text-transform: uppercase;
+            font-size: 2vh;
+            /*text-transform: uppercase;*/
         }
 
+        .carousel-inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+        span.value {
+            font-size: 8vh;
+            font-family: sevenSegment;
+            color: #0d6efd;
+        }
+
+        span.value.orange{
+            color: #6b0e05;
+        }
+
+        h3> small{
+            font-size: 1.4vh;
+        }
+
+
+        /*
         .full-height {
             height: 100vh;
         }
@@ -66,56 +288,104 @@
             font-size: 5vh;
         }
 
-        .btn{
+        .btn {
             min-width: 2vw !important;
         }
+            */
     </style>
 </head>
 
 <body>
 
-    <div class="d-flex justify-content-center align-items-center full-height">
-        <div class="container text-center">
 
-            <!-- PRESAURE-->
-            <div class="row">
-                <div class="col text-center">
-                    <h1>Druck</h1>
-                    <div id="pressure">
-                        0
+    <div class="container vh-100 d-flex flex-column justify-content-center align-items-center">
+
+        <!-- Dropdown Einstellungen -->
+        <div class="position-absolute top-0 end-0 p-3">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Einstellungen
+                </button>
+                <div class="dropdown-menu p-4 text-center" aria-labelledby="dropdownMenuButton" style="width: 250px">
+
+                    <!-- Baud Rate Selector -->
+                    <h6>Baudrate</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-outline-secondary" id="prevBaud"> &lt; </button>
+                        <span id="baudRateDisplay" class="px-3">9600</span>
+                        <button class="btn btn-outline-secondary" id="nextBaud"> &gt; </button>
                     </div>
-                    Bar
+                    <!-- Baud Rate Selector -->
+
+                    <hr />
+
+                    <!-- Address Selector -->
+                    <h6>Adresse</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-outline-secondary" id="prevAddress"> &lt; </button>
+                        <span id="addressDisplay" class="px-3">1</span>
+                        <button class="btn btn-outline-secondary" id="nextAddress"> &gt; </button>
+                    </div>
+                    <!-- Address Selector -->
+
+                    <hr />
+
+                    <!-- Stop Bit Selector -->
+                    <h6>Stop Bit</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-secondary" id="prevStopBit"> &lt; </button>
+                        <span id="stopBitDisplay" class="px-3">1</span>
+                        <button class="btn btn-outline-secondary" id="nextStopBit"> &gt; </button>
+                    </div>
+                    <!-- Stop Bit Selector -->
+
+                    <hr />
+
+                    <!-- Parity Selector -->
+                    <h6>Parity</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-secondary" id="prevParity"> &lt; </button>
+                        <span id="parityDisplay" class="px-3">none</span>
+                        <button class="btn btn-outline-secondary" id="nextParity"> &gt; </button>
+                    </div>
+                    <!-- Parity Selector -->
+
                 </div>
             </div>
-            <!-- PRESAURE-->
+        </div>
+        <!-- Dropdown Einstellungen -->
 
+        <!-- Row mit zwei Columns -->
+        <div class="row w-100">
 
-            <!-- SPACER -->
-            <div style="height: 10vh"></div>
-            <!-- SPACER -->
-
-
-            <!-- SIMLUATE -->
-            <div class="row">
-                <div class="col text-center">
-                    <h5>Simulation</h5>
-
-                        <button type="button" class="btn btn-outline-primary" data-value="8" data-action="-">- 8</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="5" data-action="-">- 5</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="3" data-action="-">- 3</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="1" data-action="-">- 1</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="0" data-action="set">0</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="1" data-action="+">+ 1</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="3" data-action="+">+ 3</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="5" data-action="+">+ 5</button>
-                        <button type="button" class="btn btn-outline-primary" data-value="8" data-action="+">+ 8</button>
-  
-                </div>
+            <!-- Pressure 1 -->
+            <div class="col text-center">
+                <h3>P<small>ist 20°C</small></h3>
+                <span id="pressure1" class="value">0</span>
+                <h5>MPa</h5>
             </div>
-            <!-- SIMLUATE -->
+            <!-- Pressure 1 -->
+
+            <!-- Pressure 2 -->
+            <div class="col text-center">
+                <h3>P<small>ist</small></h3>
+                <span id="pressure2" class="value">0</span>
+                <h5>MPa</h5>
+            </div>
+            <!-- Pressure 2 -->
+
+            <div style="height: 100px"></div>
+
+            <div class="col-12 text-center">
+                <h3>Temperatur</h3>
+                <span id="temperature" class="value orange">0</span>°C
+            </div>
 
         </div>
     </div>
+
+    <script src="bootstrap.bundle.min.js"></script>
 
 </body>
 

@@ -20,7 +20,7 @@ function getRandomInt(min, max) {
 
 wss.on("connection", (ws, req) => {
 
-    let interval = null;
+    let interval = createInterval(ws);
 
     ws.once("close", () => {
         console.log("WebSocket connection closed")
@@ -29,24 +29,37 @@ wss.on("connection", (ws, req) => {
 
     ws.on("message", (msg) => {
 
+        clearInterval(interval);
+
         msg = JSON.parse(msg.toString());
         console.log("message from client", msg);
 
+        setTimeout(() => {
+            clearInterval(interval);
+            interval = createInterval(ws);
+        }, 1000);
+
     });
 
-    interval = setInterval(() => {
+
+
+});
+
+
+function createInterval(ws){
+    return setInterval(() => {
 
         let data = JSON.stringify({
             timestamp: Date.now(),
-            value: getRandomInt(0, 100)
+            pressure1: getRandomInt(0, 100),
+            pressure2: getRandomInt(0, 100),
+            temperature: getRandomInt(23, 30)
         });
 
         ws.send(data);
 
     }, 1000);
-
-});
-
+}
 
 
 
