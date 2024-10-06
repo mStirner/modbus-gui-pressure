@@ -1,6 +1,7 @@
 const { createServer } = require("http");
 const express = require("express");
 const { WebSocket } = require("ws");
+const { createInterface } = require("readline");
 
 const app = express();
 const server = createServer(app);
@@ -11,6 +12,51 @@ const wss = new WebSocket.Server({
     noServer: true
 });
 
+if (process.argv[2] === "--demo") {
+
+    const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    function askQuestion() {
+        rl.question("<druck 1>, <durck 2>, <temp>:", (answer) => {
+
+            let [pressure1, pressure2, temperature] = answer.split(",").map((v = null) => {
+                return Number(v);
+            });
+
+            if (!pressure1 || !pressure2 || !temperature) {
+                console.log("Du musst drei werte mit ',' getrennt angeben! Z.b: 9.52,2.47,23.07");
+                console.log("");
+            }
+
+            // Du kannst hier eine Bedingung einfügen, um die Schleife zu beenden.
+            if (answer.toLowerCase() === "exit") {
+                rl.close();
+                process.exit();
+            } else {
+                askQuestion();
+            }
+
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+
+                    client.send(JSON.stringify({
+                        pressure1,
+                        pressure2,
+                        temperature
+                    }));
+
+                }
+            });
+
+        });
+    }
+
+    askQuestion();
+
+}
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -19,34 +65,34 @@ function getRandomInt(min, max) {
 }
 
 wss.on("connection", (ws, req) => {
+    if(process.argv[2] !== "--demo"){
 
-    let interval = createInterval(ws);
-
-    ws.once("close", () => {
-        console.log("WebSocket connection closed")
-        clearInterval(interval);
-    });
-
-    ws.on("message", (msg) => {
-
-        clearInterval(interval);
-
-        msg = JSON.parse(msg.toString());
-        console.log("message from client", msg);
-
-        setTimeout(() => {
+        let interval = createInterval(ws);
+    
+        ws.once("close", () => {
+            console.log("WebSocket connection closed")
             clearInterval(interval);
-            interval = createInterval(ws);
-        }, 1000);
+        });
+    
+        ws.on("message", (msg) => {
+    
+            clearInterval(interval);
+    
+            msg = JSON.parse(msg.toString());
+            console.log("message from client", msg);
+    
+            setTimeout(() => {
+                clearInterval(interval);
+                interval = createInterval(ws);
+            }, 1000);
+    
+        });
 
-    });
-
-
-
+    }
 });
 
 
-function createInterval(ws){
+function createInterval(ws) {
     return setInterval(() => {
 
         let data = JSON.stringify({
