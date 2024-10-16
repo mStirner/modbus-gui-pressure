@@ -70,8 +70,8 @@ function createModbusMessage(id, register) {
         0x04,       // function code (Read Input Register)
         0x00,       // register address placeholder byte 1
         0x00,       // register address placeholder byte  2
-        0x00,
-        0x01
+        0x00,       // num of coils byte 1
+        0x02        // num of coils byte 2
     ]);
 
     buff.writeUInt8(id, 0); // replace device id
@@ -105,8 +105,10 @@ function parseModbusMessage(request, data) {
 function handleModbus(id, register) {
     return new Promise((resolve, reject) => {
 
+        // create modbus RTU message
         let request = createModbusMessage(id, register);
 
+        // append & create checksum
         let payload = Buffer.concat([
             request,
             crc16Modbus(request)
