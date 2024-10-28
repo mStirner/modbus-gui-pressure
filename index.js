@@ -24,9 +24,9 @@ function getRandomInt(min, max) {
 
 function openSerialPort(opts) {
     port = new SerialPort({
-        path: "/dev/ttyUSB0",
-        baudRate: 9600,
-        parity: "none",
+        path: "/dev/ttyUSB0",   //initialise USB adapter
+        baudRate: 9600,         // Baudrate Voreinstellung 
+        parity: "none", 
         stopBits: 1,
         dataBits: 8,
         lock: false,
@@ -194,7 +194,7 @@ wss.on("connection", (ws, req) => {
         });
 
         function askQuestion() {
-            rl.question("<druck 1>, <durck 2>, <temp>:", (answer) => {
+            rl.question("<druck 1>, <druck 2>, <temp>:", (answer) => {
 
                 if (answer.toLowerCase() === "exit") {
                     rl.close();
@@ -270,7 +270,7 @@ wss.on("connection", (ws, req) => {
 
                         });
 
-                    }, 3000);
+                    }, 3000);       //Intervall der Abfrage
 
                     port.once("close", () => {
                         console.log("Serialport closed")
@@ -313,7 +313,7 @@ app.get("/events", (req, res) => {
     } else {
 
         // no websocket handshake
-        // tell them they are stupid!
+    
         res.status(400).end();
 
     }
