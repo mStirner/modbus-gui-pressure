@@ -61,14 +61,14 @@
         // DOM Elements
         const baudRateDisplay = document.getElementById('baudRateDisplay');
         const addressDisplay = document.getElementById('addressDisplay');
-        const stopBitDisplay = document.getElementById('stopBitDisplay');
+        //const stopBitDisplay = document.getElementById('stopBitDisplay');
         const parityDisplay = document.getElementById('parityDisplay');
         const prevBaud = document.getElementById('prevBaud');
         const nextBaud = document.getElementById('nextBaud');
         const prevAddress = document.getElementById('prevAddress');
         const nextAddress = document.getElementById('nextAddress');
-        const prevStopBit = document.getElementById('prevStopBit');
-        const nextStopBit = document.getElementById('nextStopBit');
+        //const prevStopBit = document.getElementById('prevStopBit');
+        //const nextStopBit = document.getElementById('nextStopBit');
         const prevParity = document.getElementById('prevParity');
         const nextParity = document.getElementById('nextParity');
 
@@ -141,10 +141,12 @@
         }
 
         // Function to update the stop bit display
+        /*
         function updateStopBit() {
             stopBitDisplay.textContent = stopBits[currentStopBitIndex];
             sendSettings();
         }
+        */
 
         function updateParity() {
             parityDisplay.textContent = parity[currentParityIndex];
@@ -197,6 +199,7 @@
         });
 
         // Event Listeners for stop bit buttons
+        /*
         prevStopBit.addEventListener('click', () => {
             if (currentStopBitIndex > 0) {
                 currentStopBitIndex--;
@@ -214,6 +217,7 @@
             }
             updateStopBit();
         });
+        */
 
         // Event Listeners for parity buttons
         prevParity.addEventListener('click', () => {
@@ -237,7 +241,7 @@
         // Initialize display
         updateBaudRate();
         updateAddress();
-        updateStopBit();
+        //updateStopBit();
         updateParity();
 
 
