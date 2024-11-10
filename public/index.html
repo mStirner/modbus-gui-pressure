@@ -42,19 +42,19 @@
             }
 
 
-        // Baudrate Options
+        // Baudrate Option
         const baudRates = ["---", 9600, 19200];
         let currentBaudIndex = 0;
 
-        // Address Options (1-10)
+        // Address Option (1-10)
         const addresses =Array.from({ length: 10 }, (_, i) => i + 1);
         let currentAddressIndex = 0;
 
-        // Stop Bit Options (1, 1.5, 2)
+        // Stop Bit Option (1, 1.5, 2)
         const stopBits = [1, 1.5, 2];
         let currentStopBitIndex = 0;
 
-        // Parity Options (none, even, odd)
+        // Parity Option (none, even, odd)
         const parity = ["none", "even", "odd"];
         let currentParityIndex = 0;
 
@@ -95,52 +95,20 @@
 
         }
 
-        /*
-        function handleEntrySelection(obj, cb) {
 
-            obj.prevButton.addEventListener('click', () => {
-                if (obj.index > 0) {
-                    obj.index--;
-                } else {
-                    obj.index = obj.items.length - 1;
-                }
-                cb(obj);
-            });
-
-            obj.nextButton.addEventListener('click', () => {
-                if (obj.index < obj.items.length - 1) {
-                    obj.index++;
-                } else {
-                    obj.index = 0;
-                }
-                cb(obj);
-            });
-
-        }
-
-        handleEntrySelection({
-            items: [9600, 19200],
-            index: 0,
-            prevButton: prevBaud,
-            nextButton: nextBaud
-        }, ({ items, index }) => {
-            baudRateDisplay.textContent = items[index];
-        });
-        */
-
-        // Function to update the baud rate display
+        // Funktion zum Aktualisieren der Baudrate -Anzeige
         function updateBaudRate() {
             baudRateDisplay.textContent = baudRates[currentBaudIndex];
             sendSettings();
         }
 
-        // Function to update the address display
+        // Funktion zum Aktualisieren der Adress -Anzeige
         function updateAddress() {
             addressDisplay.textContent = addresses[currentAddressIndex];
             sendSettings();
         }
 
-        // Function to update the stop bit display
+        // Funktion zum Aktualisieren der Stop Bit -Anzeige
         /*
         function updateStopBit() {
             stopBitDisplay.textContent = stopBits[currentStopBitIndex];
@@ -153,10 +121,10 @@
             sendSettings();
         }
 
-        // Prevent dropdown from closing when clicking on the buttons
+        // Verhindere dropdown vom schließen wenn man was klickt
         document.querySelectorAll('.dropdown-menu button').forEach(button => {
             button.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevents the dropdown from closing
+                e.stopPropagation(); // Verhindere dropdown vom schließen
             });
         });
 
@@ -341,7 +309,6 @@
                     </div>
                     <!-- Address Selector -->
 
-                    <hr />
 
                     <!-- Stop Bit Selector -->
                    <!-- <h6>Stop Bit</h6>
@@ -368,7 +335,7 @@
         </div>
         <!-- Dropdown Einstellungen -->
 
-        <!-- Row mit zwei Columns -->
+        <!-- Reihe mit zwei Spalten -->
         <div class="row w-100">
 
             <!-- Pressure 1 -->
