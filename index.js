@@ -169,7 +169,7 @@ function handleModbus(id, register) {
                 timeout = setTimeout(() => {
                     console.log("No message received, remove handler, prevents memeory leak")
                     port.off("data", messageHandler);
-                }, 5000);
+                }, 1000);
 
                 // flushed payload data
                 // listen for response data
@@ -382,7 +382,7 @@ const interval = setInterval(function ping() {
         ws.isAlive = false;
         ws.ping();
     });
-}, 30000);
+}, 5000);
 
 app.get("/events", (req, res) => {
     if (req.headers["upgrade"] && req.headers["connection"]) {
