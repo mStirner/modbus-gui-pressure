@@ -1,8 +1,10 @@
+
 const { createServer } = require("http");
 const express = require("express");
 const { WebSocket } = require("ws");
 const { createInterface } = require("readline");
 const { SerialPort } = require("serialport");
+const timers = require("timers/promises");
 
 const app = express();
 const server = createServer(app);
@@ -22,11 +24,17 @@ function getRandomInt(min, max) {
 }
 
 
+function toFixedTruncate(number, decimals) {
+    const factor = Math.pow(10, decimals);
+    return Math.floor(number * factor) / factor;
+}
+
+
 function openSerialPort(opts) {
     port = new SerialPort({
         path: "/dev/ttyUSB0",   //initialise USB adapter
-        baudRate: 9600,         // Baudrate Voreinstellung 
-        parity: "none", 
+        baudRate: 9600,         // Baudrate Voreinstellung
+        parity: "none",
         stopBits: 1,
         dataBits: 8,
         lock: false,
@@ -77,7 +85,7 @@ function createModbusMessage(id, register) {
     buff.writeUInt8(id, 0); // replace device id
     buff.writeUInt16BE(register, 2); // replace register
 
-    console.log("Modbus message", buff);
+    //console.log("Modbus message", buff);
 
     return buff;
 
@@ -118,6 +126,7 @@ function handleModbus(id, register) {
         // write data to serial port
         // wait till its flushed
         port.write(payload, (err) => {
+            console.log("written modebus message", payload);
             if (err) {
 
                 reject(err);
@@ -128,20 +137,26 @@ function handleModbus(id, register) {
 
                 // wraper for incoming messages
                 let messageHandler = (data) => {
+                    console.log("resp", data);
                     try {
 
                         // parse response
                         // compare with request
                         let value = parseModbusMessage(request, data);
 
-                        resolve(value);
+                        process.nextTick(() => {
+                            // pass raw value to underlaying functoin
+                            // convert decimals of temp & pressure  sperate
+                            //resolve(toFixedTruncate(value, 2));
+                            resolve(value);
+                        });
 
                     } catch (err) {
 
                         // pass error
                         reject(err);
 
-                    }finally{
+                    } finally {
 
                         // clear timeout
                         clearTimeout(timeout);
@@ -154,7 +169,7 @@ function handleModbus(id, register) {
                 timeout = setTimeout(() => {
                     console.log("No message received, remove handler, prevents memeory leak")
                     port.off("data", messageHandler);
-                }, 1500);
+                }, 5000);
 
                 // flushed payload data
                 // listen for response data
@@ -179,14 +194,34 @@ function queryMeter(address, cb) {
 
     } else {
 
+        (async () => {
+            try {
+                let pressure1 = await handleModbus(address, 23);
+                await timers.setTimeout(10);
+                let pressure2 = await handleModbus(address, 1);
+                await timers.setTimeout(10);
+                let temperature = await handleModbus(address, 13);
+
+                cb({
+                    pressure1: toFixedTruncate(pressure1, 4),
+                    pressure2: toFixedTruncate(pressure2, 4),
+                    temperature: toFixedTruncate(temperature, 2)
+                });
+
+            } catch (err) {
+                console.error(err);
+            }
+        })();
+
         // create modbus message(s)
+        /*
         Promise.all([
-            handleModbus(address, 23),  // pressure 1    "Absolutdruck bei 20"
-            handleModbus(address, 1),   // pressure 2    "Absolutdruck"
+            //handleModbus(address, 23),  // pressure 1    "Absolutdruck bei 20"
+            //handleModbus(address, 1),   // pressure 2    "Absolutdruck"
             handleModbus(address, 13)   // temperature
         ]).then(([
-            pressure1, 
-            pressure2, 
+            pressure1,
+            pressure2,
             temperature
         ]) => {
 
@@ -201,12 +236,21 @@ function queryMeter(address, cb) {
             console.error(err);
 
         });
+        */
 
     }
 }
 
 
 wss.on("connection", (ws, req) => {
+
+    let interval = null;
+
+    ws.once("close", () => {
+        console.log("ws connection closed");
+        clearInterval(interval);
+    });
+
     if (process.argv[2] === "--demo") {
 
         const rl = createInterface({
@@ -220,7 +264,7 @@ wss.on("connection", (ws, req) => {
                 if (answer.toLowerCase() === "exit") {
                     rl.close();
                     process.exit();
-                } 
+                }
 
                 let [pressure1, pressure2, temperature] = answer.split(",").map((v = null) => {
                     return Number(v);
@@ -244,6 +288,28 @@ wss.on("connection", (ws, req) => {
         }
 
         askQuestion();
+
+    } else if(process.argv[2] === "--simulate"){
+
+        interval = setInterval(() => {
+
+            console.clear();
+            console.log(`[${Date.now()}] Query Modbus Device...`);
+
+            queryMeter(null, ({ pressure1, pressure2, temperature }) => {
+
+                let data = JSON.stringify({
+                    timestamp: Date.now(),
+                    pressure1,
+                    pressure2,
+                    temperature
+                });
+
+                ws.send(data);
+
+            });
+
+        }, 3000);       //Intervall der Abfrage
 
     } else {
 
@@ -274,8 +340,10 @@ wss.on("connection", (ws, req) => {
                         parity
                     });
 
-                    let interval = setInterval(() => {
+                    interval = setInterval(() => {
 
+
+                        console.clear();
                         console.log(`[${Date.now()}] Query Modbus Device...`);
 
                         queryMeter(address, ({ pressure1, pressure2, temperature }) => {
@@ -318,6 +386,7 @@ wss.on("connection", (ws, req) => {
         });
 
     }
+
 });
 
 
@@ -334,7 +403,6 @@ app.get("/events", (req, res) => {
     } else {
 
         // no websocket handshake
-    
         res.status(400).end();
 
     }
