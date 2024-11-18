@@ -196,6 +196,7 @@ function queryMeter(address, cb) {
 
         (async () => {
             try {
+
                 let pressure1 = await handleModbus(address, 23);
                 await timers.setTimeout(10);
                 let pressure2 = await handleModbus(address, 1);
@@ -213,31 +214,6 @@ function queryMeter(address, cb) {
             }
         })();
 
-        // create modbus message(s)
-        /*
-        Promise.all([
-            //handleModbus(address, 23),  // pressure 1    "Absolutdruck bei 20"
-            //handleModbus(address, 1),   // pressure 2    "Absolutdruck"
-            handleModbus(address, 13)   // temperature
-        ]).then(([
-            pressure1,
-            pressure2,
-            temperature
-        ]) => {
-
-            cb({
-                pressure1,
-                pressure2,
-                temperature
-            });
-
-        }).catch((err) => {
-
-            console.error(err);
-
-        });
-        */
-
     }
 }
 
@@ -245,6 +221,12 @@ function queryMeter(address, cb) {
 wss.on("connection", (ws, req) => {
 
     let interval = null;
+
+    ws.isAlive = true;
+    ws.on('error', console.error);
+    ws.on('pong', () => {
+        ws.isAlive = true;
+    });
 
     ws.once("close", () => {
         console.log("ws connection closed");
@@ -289,7 +271,7 @@ wss.on("connection", (ws, req) => {
 
         askQuestion();
 
-    } else if(process.argv[2] === "--simulate"){
+    } else if (process.argv[2] === "--simulate") {
 
         interval = setInterval(() => {
 
@@ -389,7 +371,18 @@ wss.on("connection", (ws, req) => {
 
 });
 
+wss.on('close', function close() {
+    clearInterval(interval);
+});
 
+const interval = setInterval(function ping() {
+    wss.clients.forEach(function each(ws) {
+        if (ws.isAlive === false) return ws.terminate();
+
+        ws.isAlive = false;
+        ws.ping();
+    });
+}, 30000);
 
 app.get("/events", (req, res) => {
     if (req.headers["upgrade"] && req.headers["connection"]) {
