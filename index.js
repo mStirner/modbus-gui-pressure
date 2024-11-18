@@ -77,7 +77,7 @@ function createModbusMessage(id, register) {
     buff.writeUInt8(id, 0); // replace device id
     buff.writeUInt16BE(register, 2); // replace register
 
-    console.log("Modbus message", buff)
+    console.log("Modbus message", buff);
 
     return buff;
 
@@ -88,6 +88,7 @@ function parseModbusMessage(request, data) {
 
     let resp = data.slice(0, data.length - 2);
     let crc = data.slice(data.length - 2);
+    let payload = resp.slice(3, data.length - 2);
 
     if (Buffer.compare(crc, crc16Modbus(resp)) !== 0) {
         throw new Error("Invalid checksum");
@@ -97,7 +98,7 @@ function parseModbusMessage(request, data) {
         throw new Error("Invalid device Id");
     }
 
-    return data.readFloat16BE(4);
+    return payload.readFloatBE();
 
 }
 
@@ -123,9 +124,10 @@ function handleModbus(id, register) {
 
             } else {
 
-                // flushed payload data
-                // listen for response data
-                port.once("data", (data) => {
+                let timeout = null;
+
+                // wraper for incoming messages
+                let messageHandler = (data) => {
                     try {
 
                         // parse response
@@ -135,9 +137,28 @@ function handleModbus(id, register) {
                         resolve(value);
 
                     } catch (err) {
+
+                        // pass error
                         reject(err);
+
+                    }finally{
+
+                        // clear timeout
+                        clearTimeout(timeout);
+
                     }
-                });
+                };
+
+                // remove message handler after 1.5s
+                // when the device does not respond
+                timeout = setTimeout(() => {
+                    console.log("No message received, remove handler, prevents memeory leak")
+                    port.off("data", messageHandler);
+                }, 1500);
+
+                // flushed payload data
+                // listen for response data
+                port.once("data", messageHandler);
 
             }
         });
@@ -160,9 +181,9 @@ function queryMeter(address, cb) {
 
         // create modbus message(s)
         Promise.all([
-            handleModbus(address, 22),  // pressure 1    "Absolutdruck bei 20"
-            handleModbus(address, 0),   // pressure 2    "Absolutdruck"
-            handleModbus(address, 12)   // temperature
+            handleModbus(address, 23),  // pressure 1    "Absolutdruck bei 20"
+            handleModbus(address, 1),   // pressure 2    "Absolutdruck"
+            handleModbus(address, 13)   // temperature
         ]).then(([
             pressure1, 
             pressure2, 
