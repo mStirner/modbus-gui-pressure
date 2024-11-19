@@ -59,12 +59,18 @@ function parseModbusMessage(request, data) {
     let crc = data.slice(data.length - 2);
     let payload = resp.slice(3, data.length - 2);
 
-    if (Buffer.compare(crc, crc16Modbus(resp)) !== 0) {
-        throw new Error("Invalid checksum");
-    }
-
     if (request[0] !== data[0]) {
         throw new Error("Invalid device Id");
+    }    
+
+    /*
+    if (request[1] !== data[1]) {
+        throw new Error("Invalid function code");
+    }
+    */
+
+    if (Buffer.compare(crc, crc16Modbus(resp)) !== 0) {
+        throw new Error("Invalid checksum");
     }
 
     return payload.readFloatBE();
