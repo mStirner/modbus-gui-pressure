@@ -1,0 +1,15 @@
+[Unit]
+Description=SF6-Modbus GUI
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/SF6-Modbus/index.js
+WorkingDirectory=/opt/SF6-Modbus/
+#EnvironmentFile=/opt/SF6-Modbus/.env
+Restart=on-failure
+RestartSec=10
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
