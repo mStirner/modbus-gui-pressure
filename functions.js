@@ -7,7 +7,8 @@ function getRandomInt(min, max) {
 
 function toFixedTruncate(number, decimals) {
     const factor = Math.pow(10, decimals);
-    return Math.floor(number * factor) / factor;
+    const truncated = Math.floor(number * factor) / factor;
+    return truncated.toFixed(decimals);
 }
 
 
@@ -61,11 +62,11 @@ function parseModbusMessage(request, data) {
 
     if (request[0] !== data[0]) {
         throw new Error("Invalid device Id");
-    }    
+    }
 
-    if(data[1] >= 0x80){
+    if (data[1] >= 0x80) {
         throw new Error(`Modbus error from slave ${data[0]}: Exception Code ${data[2]}`);
-    }    
+    }
 
     if (request[1] !== data[1]) {
         throw new Error("Invalid function code");
