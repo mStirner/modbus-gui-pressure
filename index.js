@@ -155,7 +155,7 @@ function queryMeter(address, cb) {
         (async () => {
             try {
 
-                let pressure1 = await handleModbus(address, 61);
+                let pressure1 = await handleModbus(address, 23);  //23 = Druck, normiert bei 20′C , 61 = MPa
                 await timers.setTimeout(10);
                 let pressure2 = await handleModbus(address, 3);
                 await timers.setTimeout(10);
