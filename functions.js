@@ -64,7 +64,7 @@ function parseModbusMessage(request, data) {
     }    
 
     if(data[1] >= 0x80){
-        throw new Error(`Modbus error from slave ${slaveId}: Exception Code ${data[2]}`);
+        throw new Error(`Modbus error from slave ${data[0]}: Exception Code ${data[2]}`);
     }    
 
     if (request[1] !== data[1]) {
