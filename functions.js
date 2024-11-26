@@ -63,12 +63,12 @@ function parseModbusMessage(request, data) {
         throw new Error("Invalid device Id");
     }    
 
+    if(data[1] >= 0x80){
+        throw new Error(`Modbus error from slave ${slaveId}: Exception Code ${data[2]}`);
+    }    
+
     if (request[1] !== data[1]) {
         throw new Error("Invalid function code");
-    }
-
-    if((data[1] & 0x80) === 0x80){
-        throw new Error(`Modbus error from slave ${slaveId}: Exception Code ${data[2]}`);
     }
 
     if (Buffer.compare(crc, crc16Modbus(resp)) !== 0) {
